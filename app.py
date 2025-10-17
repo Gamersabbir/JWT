@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 
 from helpers import json_to_proto, aes_cbc_encrypt, decode_protobuf, jwt_decode
 from proto import FreeFire_pb2
-from mysql import get_account, store_account, refresh_token
 
 load_dotenv()
 
@@ -66,7 +65,7 @@ def jwt_generate():
     if not uid or not password:
         return jsonify({"message": "Missing parameters Uid and Password"})
 
-    exist_account = get_account(uid, password)
+
 
     if exist_account is not None and exist_account["token_expired_at"] > datetime.now():
         return jsonify(
@@ -135,7 +134,7 @@ def jwt_generate():
             msg["serverUrl"],
             msg.get("nickname", "Unknown"),
         ]
-        store_account(account_data)
+
 
     return jsonify(
         {
