@@ -1,0 +1,15 @@
+google
+protobuf
+requests
+Flask
+python-dotenv
+flask-cors
+pycryptodome
+requests
+googleapis-common-protos
+Werkzeug
+python-dotenv
+fake-useragent
+gunicorn
+pyjwt
+pymysql
