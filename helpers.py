@@ -1,32 +1,40 @@
 import base64
 import json
-import jwt
-from proto import FreeFire_pb2
-from google.protobuf import json_format, message
-from google.protobuf.message import Message
 from Crypto.Cipher import AES
+from google.protobuf import json_format
+import FreeFire_pb2
+import jwt
+import os
 
+MAIN_KEY = os.getenv("MAIN_KEY")
+MAIN_IV = os.getenv("MAIN_IV")
 
-def pad(text: bytes) -> bytes:
-    padding_length = AES.block_size - (len(text) % AES.block_size)
-    return text + bytes([padding_length] * padding_length)
+def pad(data: bytes):
+    pad_len = 16 - (len(data) % 16)
+    return data + bytes([pad_len] * pad_len)
 
+def aes_cbc_encrypt(key, iv, plaintext):
+    cipher = AES.new(bytes.fromhex(key), AES.MODE_CBC, bytes.fromhex(iv))
+    return cipher.encrypt(pad(plaintext))
 
-def aes_cbc_encrypt(key: bytes, iv: bytes, plaintext: bytes) -> bytes:
-    aes = AES.new(key, AES.MODE_CBC, iv)
-    return aes.encrypt(pad(plaintext))
-
-
-def decode_protobuf(encoded_data: bytes, message_type: message.Message) -> message.Message:
-    instance = message_type()
-    instance.ParseFromString(encoded_data)
-    return instance
-
-
-def json_to_proto(json_data: str, proto_message: Message) -> bytes:
-    json_format.ParseDict(json.loads(json_data), proto_message)
+def json_to_proto(json_data, proto_message):
+    if isinstance(json_data, str):
+        json_data = json.loads(json_data)
+    json_format.ParseDict(json_data, proto_message)
     return proto_message.SerializeToString()
 
+def decode_protobuf(data, proto_class):
+    msg = proto_class()
+    msg.ParseFromString(data)
+    return msg
 
 def jwt_decode(token):
-    return jwt.decode(jwt=token, options={"verify_signature": False}, algorithms=["HS256"], verify=False)
+    return jwt.decode(token, options={"verify_signature": False})
+
+def token_grant(uid, password):
+    # Placeholder function — এখানে API কল করে token generate করা হবে।
+    # এখন শুধুমাত্র উদাহরণস্বরূপ fake ডেটা রিটার্ন করছে।
+    return {
+        "open_id": uid,
+        "access_token": password
+    }
